@@ -1,4 +1,4 @@
-
+//#include <Arduino.h> */VSCODE/*
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <TinyGPSPlus.h>
@@ -6,22 +6,22 @@
 #include "time.h"         //Time for NTP
 #define DHTPIN 13         //define pin number
 #define DHTTYPE DHT22     //our sensor is DHT22 type
-
+int runs = 0;
 const unsigned long eventInterval = 30000;
-
+const unsigned long eventInterval1 = 5000;
 unsigned long previousTime = 10000;
-
+unsigned long previousTime1 = 100;
+const unsigned long eventInterval2 = 10000;
+unsigned long previousTime2 = 1000;
 //Light sensor
 #define LIGHT_SENSOR_PIN 32 // ESP32 pin GIOP32 (ADC0)
 #define uS_TO_S_FACTOR 1000000ULL /* Conversion factor for micro seconds to seconds */
-#define TIME_TO_SLEEP 12    //seconds the sensor would sleep
+#define TIME_TO_SLEEP 120    //seconds the sensor would sleep
 float analogValue = analogRead(LIGHT_SENSOR_PIN);
 
 //ESP32 MQTT user config
-const char* ssid = "AnswerIs42_2"; // Wifi SSID
-const char* password = "Adgangskoden2911"; // Wifi Password
-//const char* ssid = "ITEK 2nd"; // Wifi SSID
-//const char* password = "Four_Sprints_F21v"; // Wifi Password
+const char* ssid = "ITEK 2nd"; // Wifi SSID
+const char* password = "Four_Sprints_F21v"; // Wifi Password
 const char* pubTopic = "g2"; // publish/username/apiKeyIn
 
 //MQTT config
@@ -61,7 +61,7 @@ const char *gpsStream =
 
 // setup
 void setup() {
-  
+
   Serial.begin(115200);
   Serial.println("*****************************************************");
   Serial.print("********** connecting to WIFI : ");
@@ -70,7 +70,7 @@ void setup() {
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
- 
+
   }
   Serial.println("");
   Serial.println("->WiFi connected");
@@ -88,9 +88,6 @@ void setup() {
 
   //Initiate time (config)
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-
-
-
 }
 
 //MQTT callback
@@ -109,6 +106,7 @@ int lightSensor() {
   return analogValue;
 }
 
+
 void light_sleep() {
   //Light Sensor
   float Light = lightSensor();
@@ -119,16 +117,16 @@ void light_sleep() {
     esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
     Serial.println("ESP32 set to sleep for " + String(TIME_TO_SLEEP) +
                    " Seconds");
-    
+
     Serial.flush();
     esp_deep_sleep_start();
-    
+
   }
 }
 
 // GPS displayInfo
 void displayInfo() {
-  
+
   //Light Sensor
   float Light = lightSensor();
 
@@ -136,7 +134,7 @@ void displayInfo() {
     double latitude = (gps.location.lat());
     double longitude = (gps.location.lng());
 
-    
+
     //DHT22 sensor loop
     //use the functions which are supplied by library.
     float h = dht.readHumidity();
@@ -159,23 +157,23 @@ void displayInfo() {
     //time conv. to string
     char timeStringBuff[50]; //50 chars should be enough
     strftime(timeStringBuff, sizeof(timeStringBuff), "%H:%M:%S", &timeinfo);
-   
+
     Serial.println("****** Publishing MQTT data to WebServer ******");
     char mqtt_payload[120] = "Waiting for better study conditions.";
-    
-   // snprintf (mqtt_payload, 90, "Hum:%lf; Temp:%lf; Lat:%lf; Long:%lf; Light:%lf;Time:%lf", h, t, latitude, longitude, Light, timeStringBuff);
+
+    // snprintf (mqtt_payload, 90, "Hum:%lf; Temp:%lf; Lat:%lf; Long:%lf; Light:%lf;Time:%lf", h, t, latitude, longitude, Light, timeStringBuff);
     Serial.print("Publish message: ");
-   // Serial.println(mqtt_payload);
+    // Serial.println(mqtt_payload);
     client.publish(pubTopic, mqtt_payload);
-    
+
     snprintf (mqtt_payload, 20, "%lf", t);
     Serial.println(mqtt_payload);
     client.publish("g2/temp", mqtt_payload);
-    
+
     snprintf (mqtt_payload, 20, "%lf", h);
     Serial.println(mqtt_payload);
     client.publish("g2/humid", mqtt_payload);
-    
+
     snprintf (mqtt_payload, 20, "%lf", Light);
     Serial.println(mqtt_payload);
     client.publish("g2/light", mqtt_payload);
@@ -183,34 +181,35 @@ void displayInfo() {
     snprintf (mqtt_payload, 50, "%lf, %lf", latitude, longitude);
     Serial.println(mqtt_payload);
     client.publish("g2/gps", mqtt_payload);
-    
+
     snprintf (mqtt_payload, 50, timeStringBuff);
     Serial.println(mqtt_payload);
     client.publish("g2/time", mqtt_payload);
 
     Serial.println("> MQTT data published");
     Serial.println("********** End **********");
-    
+
 
   }
 }
 
 //MQTT reconnect
 void reconnect() {
+  unsigned long currentTime1 = millis();
   // Loop until we're reconnected
-  
-  while (!client.connected()) {
-    Serial.print("********** Attempting MQTT connection...");
-    // Attempt to connect
-    if (client.connect("ESP32Client")) {
-      Serial.println("-> MQTT client connected");
-    } else {
-      
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println("-> try again in 5 seconds");
-      // Wait 5 seconds before retrying
-     
+  if (currentTime1 - previousTime1 >= eventInterval1) {
+    while (!client.connected()) {
+      Serial.print("********** Attempting MQTT connection...");
+      // Attempt to connect
+      if (client.connect("ESP32Client")) {
+        Serial.println("-> MQTT client connected");
+      } else {
+
+        Serial.print("failed, rc=");
+        Serial.print(client.state());
+        Serial.println("-> try again in 5 seconds");
+        previousTime1 = currentTime1; // Wait 5 seconds before retrying
+      }
     }
   }
 }
@@ -218,19 +217,31 @@ void reconnect() {
 
 // loop
 void loop() {
-  
+
+  if (!client.connected()) {
+    reconnect();
+    client.loop();
+  }
+  unsigned long currentTime2 = millis();
+  if (currentTime2 - previousTime2 >= eventInterval2) {
+    if (runs <2) {
+      Serial.print("WORK!");
+      while (*gpsStream)
+        (gps.encode(*gpsStream++));
+      Serial.println(runs);
+      displayInfo();
+      runs++;
+    }
+      
+    previousTime2 = currentTime2;
+  }
   unsigned long currentTime = millis();
   if (currentTime - previousTime >= eventInterval) {
-  if (!client.connected())
-    reconnect();
-  client.loop();
-
-  while (*gpsStream)
-    (gps.encode(*gpsStream++));
-    
+    while (*gpsStream)
+      (gps.encode(*gpsStream++));
     displayInfo();
     light_sleep();
     previousTime = currentTime;
+
   }
 }
-  
