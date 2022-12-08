@@ -1,6 +1,7 @@
-import paho.mqtt.client as mqtt
-import sqlite3
 import datetime
+import sqlite3
+
+import paho.mqtt.client as mqtt
 
 # https://inloop.github.io/sqlite-viewer/
 
@@ -11,8 +12,10 @@ TOPIC = 'g2/#'
 
 DATABASE_FILE = 'mqtt-test.db'
 
-currentDateTime = datetime.datetime.now()
-tt = currentDateTime.strftime("%m/%d/%Y, %H:%M:%S")
+
+
+
+
 
 
 def on_connect(mqtt_client, user_data, flags, conn_result):
@@ -25,7 +28,7 @@ def on_message(mqtt_client, user_data, message):
         db_conn = user_data['db_conn']
         temp = 'INSERT INTO Temperature (topic, payload, created_at) VALUES (?, ?, ?)'
         cursor = db_conn.cursor()
-        cursor.execute(temp, (message.topic, payload, tt))
+        cursor.execute(temp, (message.topic, payload, datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")))
         db_conn.commit()
         cursor.close()
     if message.topic == 'g2/light':
@@ -33,7 +36,7 @@ def on_message(mqtt_client, user_data, message):
         db_conn = user_data['db_conn']
         light = 'INSERT INTO Light (topic, payload, created_at) VALUES (?, ?, ?)'
         cursor = db_conn.cursor()
-        cursor.execute(light, (message.topic, payload, tt))
+        cursor.execute(light, (message.topic, payload, datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")))
         db_conn.commit()
         cursor.close()
     if message.topic == 'g2/humid':
@@ -41,7 +44,7 @@ def on_message(mqtt_client, user_data, message):
         db_conn = user_data['db_conn']
         humid = 'INSERT INTO Humidity (topic, payload, created_at) VALUES (?, ?, ?)'
         cursor = db_conn.cursor()
-        cursor.execute(humid, (message.topic, payload, tt))
+        cursor.execute(humid, (message.topic, payload, datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")))
         db_conn.commit()
         cursor.close()
     if message.topic == 'g2/gps':
@@ -49,7 +52,7 @@ def on_message(mqtt_client, user_data, message):
         db_conn = user_data['db_conn']
         humid = 'INSERT INTO GPS (topic, payload, created_at) VALUES (?, ?, ?)'
         cursor = db_conn.cursor()
-        cursor.execute(humid, (message.topic, payload, tt))
+        cursor.execute(humid, (message.topic, payload, datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")))
         db_conn.commit()
         cursor.close()
 
@@ -62,7 +65,7 @@ def main():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         topic TEXT NOT NULL,
         payload TEXT NOT NULL,
-        created_at timestamp
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """
     light = """
@@ -70,7 +73,7 @@ def main():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             topic TEXT NOT NULL,
             payload TEXT NOT NULL,
-            created_at timestamp
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         """
     humid = """
@@ -78,7 +81,7 @@ def main():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 topic TEXT NOT NULL,
                 payload TEXT NOT NULL,
-                created_at timestamp
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """
 
@@ -87,7 +90,7 @@ def main():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 topic TEXT NOT NULL,
                 payload TEXT NOT NULL,
-                created_at timestamp
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """
     cursor = db_conn.cursor()
