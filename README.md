@@ -1,18 +1,6 @@
-############################################
-## FishBowlAIO                            ##
-## FishBowlAIO for Study Room Analytics   ##
-##      1                                  ##
-##       1                                 ##
+
+
+## FishBowlAIO                           
+## FishBowlAIO for Study Room Analytics   
+
 ############## INSTALL-NOTES ###############
-##     1                                   ##
-##############  1.           ###############
-##        1                                ##
-##                                        ##
-##         1                               ##
-##          1                              ##
-##                                        ##
-##                                        ##
-##                                        ##
-##                                        ##
-##                                        ##
-##                                        ##
