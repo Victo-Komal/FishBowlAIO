@@ -6,21 +6,6 @@
 FishBowlAIO for Study Room Analytics
 
 
-## Overview of files
-
-
-
-## Install notes
-
-1. 
-    Two ways of installing and preparing the FishBowlAIO product
-
-
-    
-2. 
-3. 
-
-
 ## Authors
 
 
