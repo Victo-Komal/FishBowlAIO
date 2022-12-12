@@ -34,12 +34,29 @@ Shell script used for updating and fething files.
 
 ## Installation
 
+1. Download the repository
+
+From here on there's two different installation methods:
+
+
+Method 1:
+Open the terminal and paste in the following command:
+```
+git clone http://github.com/Victo-Komal/FishBowlAIO.git
+```
+Method 2:
+
+Download the updater.sh script and run in the terminal. updater.sh will install and update
+
+2. 
+
 
 
 Install FishBowlAIO with apt
 
+Here we listed the dependencies:
+
 ```bash
-sudo apt-get update
 sudo apt-get install git
 sudo apt-get install pip3
 pip3 install --upgrade pip
