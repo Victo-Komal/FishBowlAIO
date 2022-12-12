@@ -4,35 +4,10 @@
 
 
 FishBowlAIO for Study Room Analytics
-## Authors
 
-- [@Victo-Komal](https://www.github.com/Victo-Komal)
-- @Little-Devil
-- Michael "Horse" Hest
 
 ## Overview of files
 
-#### database/DB-generator.py:
-Python file that generates the mqtt_entries.db database file.
-
-#### database/mqtt_entries.db:
-Database file used for storing incoming values from the FishBowlAIO product.
-
-#### database/tt.html
-HTML file for testing.
-
-
-#### firmware/firmware.ino
-Firmware file for the FishBowlAIO.
-
-#### logo/logo.png: 
-PNG-file used as logo for the webpage.
-
-#### updater.sh
-Shell script used for updating and fething files.
-
-#### webserver.py
-Python file for starting the webserver locally.
 
 
 ## Install notes
@@ -45,3 +20,45 @@ Python file for starting the webserver locally.
 2. 
 3. 
 
+
+## Authors
+
+
+- [@Victo-Komal](https://www.github.com/Victo-Komal)
+- @Little-Devil
+- Michael "Horse" Hest
+## Overview of files
+
+#### FishBowlAIO/firmware/DB-generator.py:
+Python file that generates the mqtt_entries.db database file.
+
+#### FishBowlAIO/firmware/mqtt_entries.db:
+Database file used for storing incoming values from the FishBowlAIO product.
+
+#### FishBowlAIO/firmware/tt.html
+HTML file for testing.
+
+#### FishBowlAIO/firmware/firmware.ino
+Firmware file for the FishBowlAIO.
+
+#### FishBowlAIO/webserver.py
+Python file for starting the webserver locally.
+
+#### updater.sh
+Shell script used for updating and fething files.
+
+## Installation
+
+
+
+Install FishBowlAIO with apt
+
+```bash
+sudo apt-get update
+sudo apt-get install git
+sudo apt-get install pip3
+pip3 install --upgrade pip
+pip3 install paho-mqtt
+git clone http://github.com/Victo-Komal/FishBowlAIO.git
+```
+    
