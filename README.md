@@ -11,7 +11,7 @@ FishBowlAIO for Study Room Analytics
 
 - [@Victo-Komal](https://www.github.com/Victo-Komal)
 - @Little-Devil
-- [@Michael "Horse" Hest](https://github.com/Hestur)
+- [@Hestur](https://github.com/Hestur)
 ## Overview of files
 
 #### FishBowlAIO/firmware/DB-generator.py:
