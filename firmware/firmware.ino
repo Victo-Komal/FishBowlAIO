@@ -1,10 +1,20 @@
+/*
+   GitHub/Victo-Komal/FishBowlAIO/firmware.py
+   14-12-2022 G2
+
+*/
+/* Libraries */
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <TinyGPSPlus.h>
 #include "DHT.h"
 #include "time.h"         //Time for NTP
+
+
 #define DHTPIN 13         //define pin number
 #define DHTTYPE DHT22     //our sensor is DHT22 type
+
+/* Time */
 int runs = 0;
 const unsigned long eventInterval = 310000;
 const unsigned long eventInterval1 = 5000;
@@ -12,32 +22,34 @@ unsigned long previousTime = 10000;
 unsigned long previousTime1 = 100;
 const unsigned long eventInterval2 = 10000;
 unsigned long previousTime2 = 1000;
-//Light sensor
+
+/* Light sensor */
 #define LIGHT_SENSOR_PIN 32 // ESP32 pin GIOP32 (ADC0)
 #define uS_TO_S_FACTOR 1000000ULL /* Conversion factor for micro seconds to seconds */
 #define TIME_TO_SLEEP 1200    //seconds the sensor would sleep
 float analogValue = analogRead(LIGHT_SENSOR_PIN);
 
-//ESP32 MQTT user config
+/* ESP32 MQTT user config */
 const char* ssid = "ITEK 2nd"; // Wifi SSID
 const char* password = "Four_Sprints_F21v"; // Wifi Password
 const char* pubTopic = "g2"; // publish/username/apiKeyIn
 
-//MQTT config
+/* MQTT config */
 const char* mqtt_server = "test.mosquitto.org";
 unsigned int mqtt_port = 1883;
 
-//NTP
+/* NTP */
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600; //GMT+1 for Denmark (3600sec)
 const int   daylightOffset_sec = 3600; //add 1 hr.
 
-// objects
+/* objects */
 WiFiClient askClient;
 PubSubClient client(askClient);
 TinyGPSPlus gps; // The TinyGPS++ object
 DHT dht(DHTPIN, DHTTYPE); //create an instance of DHT sensor
 
+/* GPS Stream */
 const char *gpsStream =
   "$GPGGA,105427.701,5607.164,N,01009.524,E,1,12,1.0,0.0,M,0.0,M,,*61\r\n"
   "$GPGSA,A,3,01,02,03,04,05,06,07,08,09,10,11,12,1.0,1.0,1.0*30\r\n"
@@ -58,7 +70,7 @@ const char *gpsStream =
   "$GPGSA,A,3,01,02,03,04,05,06,07,08,09,10,11,12,1.0,1.0,1.0*30\r\n"
   "$GPRMC,105432.701,A,5607.164,N,01009.524,E,010.4,347.4,231122,000.0,W*71\r\n";
 
-// setup
+/* setup */
 void setup() {
 
   Serial.begin(115200);
@@ -80,16 +92,16 @@ void setup() {
   client.setCallback(callback);
 
 
-  //DHT22 sensor
+  /* DHT22 sensor */
   Serial.println("DHT22 sensor initiated");
   //call begin to start sensor
   dht.begin();
 
-  //Initiate time (config)
+  /* Initiate time (config) */
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 }
 
-//MQTT callback
+/*MQTT callback */
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
@@ -99,22 +111,22 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
   Serial.println();
 }
-
+/* Converting the analog-reading to a readable integer */
 int lightSensor() {
   int analogValue = analogRead(LIGHT_SENSOR_PIN);
   return analogValue;
 }
-
+/* Function to send the values through MQTT before sleeping */
 void displayInfoLight() {
   char mqtt_payload[120] = "Low light detected. Waiting...";
   float Light = lightSensor();
   snprintf (mqtt_payload, 20, "%lf", Light);
   Serial.println(mqtt_payload);
   client.publish("g2/light", "49");
-  
+
 }
 
-
+/* Deep sleep function */
 void light_sleep() {
   //Light Sensor
   float Light = lightSensor();
@@ -123,6 +135,7 @@ void light_sleep() {
   if (Light < 50) {
     Serial.println(" => Dark");
     displayInfoLight();
+    /* Enable sleeping procedure with predifined timer */
     esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
     Serial.println("ESP32 set to sleep for " + String(TIME_TO_SLEEP) +
                    " Seconds");
@@ -134,10 +147,10 @@ void light_sleep() {
 }
 
 
-// GPS displayInfo
+/* Function to send sensor values, GPS coordinates and time through MQTT */
 void displayInfo() {
 
-  //Light Sensor
+  /* Converting the function to a float */
   float Light = lightSensor();
 
   if (gps.location.isValid()) {
@@ -145,30 +158,31 @@ void displayInfo() {
     double longitude = (gps.location.lng());
 
 
-    //DHT22 sensor loop
-    //use the functions which are supplied by library.
+    /* DHT22 sensor loop */
+    /*uses the functions which are supplied by library */
     float h = dht.readHumidity();
-    // Read temperature as Celsius (the default)
+    /* Read temperature as Celsius (the default) */
     float t = dht.readTemperature();
-    // Check if any reads failed and exit early (to try again).
+    /* Check if any reads failed and exit early (to try again). */
 
     if (isnan(h) || isnan(t)) {
       Serial.println("Failed to read from DHT sensor!");
       return;
     }
 
-    //time object
+    /* time object */
     struct tm timeinfo;
     if (!getLocalTime(&timeinfo)) {
       Serial.println("Failed to obtain time");
       return;
     }
 
-    //time conv. to string
+    /* Time conv. to string */
     char timeStringBuff[50]; //50 chars should be enough
     strftime(timeStringBuff, sizeof(timeStringBuff), "%H:%M:%S", &timeinfo);
 
     Serial.println("****** Publishing MQTT data to WebServer ******");
+    /* Creating char array */
     char mqtt_payload[120] = "Low light detected. Waiting...";
 
     // snprintf (mqtt_payload, 90, "Hum:%lf; Temp:%lf; Lat:%lf; Long:%lf; Light:%lf;Time:%lf", h, t, latitude, longitude, Light, timeStringBuff);
@@ -178,22 +192,27 @@ void displayInfo() {
 
     snprintf (mqtt_payload, 20, "%lf", t);
     Serial.println(mqtt_payload);
+    /* Send temperature values through MQTT */
     client.publish("g2/temp", mqtt_payload);
 
     snprintf (mqtt_payload, 20, "%lf", h);
     Serial.println(mqtt_payload);
+    /* Send humidity values through MQTT */
     client.publish("g2/humid", mqtt_payload);
 
     snprintf (mqtt_payload, 20, "%lf", Light);
     Serial.println(mqtt_payload);
+    /* Send light values through MQTT */
     client.publish("g2/light", mqtt_payload);
 
     snprintf (mqtt_payload, 50, "%lf, %lf", latitude, longitude);
     Serial.println(mqtt_payload);
+    /* Send GPS coordinates through MQTT */
     client.publish("g2/gps", mqtt_payload);
 
     snprintf (mqtt_payload, 50, timeStringBuff);
     Serial.println(mqtt_payload);
+    /* Send current time through MQTT */
     client.publish("g2/time", mqtt_payload);
 
     Serial.println("> MQTT data published");
@@ -203,7 +222,7 @@ void displayInfo() {
   }
 }
 
-//MQTT reconnect
+/* MQTT reconnect */
 void reconnect() {
   unsigned long currentTime1 = millis();
   // Loop until we're reconnected
@@ -228,12 +247,14 @@ void reconnect() {
 // loop
 void loop() {
 
-
+  /* Loop for reatining connectivity through MQTT */
   if (!client.connected()) {
     reconnect();
     client.loop();
   }
+
   light_sleep();
+/* Warm up run before main loop */
   unsigned long currentTime2 = millis();
   if (currentTime2 - previousTime2 >= eventInterval2) {
     if (runs < 2) {
@@ -247,6 +268,7 @@ void loop() {
 
     previousTime2 = currentTime2;
   }
+  /* Main FishBowlAIO loop */
   unsigned long currentTime = millis();
   if (currentTime - previousTime >= eventInterval) {
     while (*gpsStream)
