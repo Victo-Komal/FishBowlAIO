@@ -8,7 +8,7 @@ import paho.mqtt.client as mqtt
 MQTT_HOST = 'test.mosquitto.org'
 MQTT_PORT = 1883
 MQTT_CLIENT_ID = 'Python MQTT client'
-TOPIC = 'g2/#'
+TOPIC = 'FishBowl/#'
 
 DATABASE_FILE = 'mqtt-logs.db'
 
@@ -18,7 +18,7 @@ def on_connect(mqtt_client, user_data, flags, conn_result):
 
 
 def on_message(mqtt_client, user_data, message):
-    if message.topic == 'g2/temp':
+    if message.topic == 'FishBowl/temp':
         payload = message.payload.decode('utf-8')
         db_conn = user_data['db_conn']
         temp = 'INSERT INTO Temperature (topic, payload, created_at) VALUES (?, ?, ?)'
@@ -26,7 +26,7 @@ def on_message(mqtt_client, user_data, message):
         cursor.execute(temp, (message.topic, payload, datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")))
         db_conn.commit()
         cursor.close()
-    if message.topic == 'g2/light':
+    if message.topic == 'FishBowl/light':
         payload = message.payload.decode('utf-8')
         db_conn = user_data['db_conn']
         light = 'INSERT INTO Light (topic, payload, created_at) VALUES (?, ?, ?)'
@@ -34,7 +34,7 @@ def on_message(mqtt_client, user_data, message):
         cursor.execute(light, (message.topic, payload, datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")))
         db_conn.commit()
         cursor.close()
-    if message.topic == 'g2/humid':
+    if message.topic == 'FishBowl/humid':
         payload = message.payload.decode('utf-8')
         db_conn = user_data['db_conn']
         humid = 'INSERT INTO Humidity (topic, payload, created_at) VALUES (?, ?, ?)'
@@ -42,7 +42,7 @@ def on_message(mqtt_client, user_data, message):
         cursor.execute(humid, (message.topic, payload, datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")))
         db_conn.commit()
         cursor.close()
-    if message.topic == 'g2/gps':
+    if message.topic == 'FishBowl/gps':
         payload = message.payload.decode('utf-8')
         db_conn = user_data['db_conn']
         gps = 'INSERT INTO GPS (topic, payload, created_at) VALUES (?, ?, ?)'
