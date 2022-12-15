@@ -164,7 +164,7 @@
 			setTimeout(MQTTconnect, reconnectTimeout);
 		}
 		function onMessageArrived(r_message) {
-			if (r_message.destinationName == "g2/temp") {
+			if (r_message.destinationName == "FishBowl/temp") {
 				document.getElementById("temp").innerHTML = r_message.payloadString;
 				if (r_message.payloadString <= 18) {
 					document.getElementById("temp").style.color = "blue"
@@ -176,7 +176,7 @@
 					document.getElementById("temp").style.color = "red"
 				}
 			}
-			if (r_message.destinationName == "g2/humid") {
+			if (r_message.destinationName == "FishBowl/humid") {
 				document.getElementById("humid").innerHTML = r_message.payloadString;
 				if (r_message.payloadString <= 29) {
 					document.getElementById("humid").style.color = "red"
@@ -188,7 +188,7 @@
 					document.getElementById("humid").style.color = "red"
 				}
 			}
-			if (r_message.destinationName == "g2/light") {
+			if (r_message.destinationName == "FishBowl/light") {
 				document.getElementById("light").innerHTML = r_message.payloadString;
 				if (r_message.payloadString <= 50) {
 					document.getElementById("body").style.backgroundColor = "rgb(0 0 0 / 57%)"
@@ -199,10 +199,10 @@
 				}
 
 			}
-			if (r_message.destinationName == "g2/time") {
+			if (r_message.destinationName == "FishBowl/time") {
 				document.getElementById("time").innerHTML = r_message.payloadString;
 			}
-			if (r_message.destinationName == "g2/gps") {
+			if (r_message.destinationName == "FishBowl/gps") {
 				document.getElementById("gps").innerHTML = r_message.payloadString;
 				gpscoords = r_message.payloadString
 
@@ -283,7 +283,7 @@
 			document.getElementById("messages").innerHTML = "";
 			if (connected_flag == 0) {
 				out_msg = "<b>Not Connected so can't subscribe</b>"
-				console.log(out_msg);
+				
 
 				document.getElementById("messages").innerHTML = out_msg;
 				return false;
