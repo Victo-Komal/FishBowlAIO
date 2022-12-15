@@ -33,7 +33,7 @@ float analogValue = analogRead(LIGHT_SENSOR_PIN);
 /* ESP32 MQTT user config */
 const char* ssid = "ITEK 2nd"; // Wifi SSID
 const char* password = "Four_Sprints_F21v"; // Wifi Password
-const char* pubTopic = "g2"; // publish/username/apiKeyIn
+const char* pubTopic = "FishBowl"; // publish/username/apiKeyIn
 
 /* MQTT config */
 const char* mqtt_server = "test.mosquitto.org";
@@ -117,13 +117,14 @@ int lightSensor() {
   int analogValue = analogRead(LIGHT_SENSOR_PIN);
   return analogValue;
 }
+
 /* Function to send the values through MQTT before sleeping */
 void displayInfoLight() {
   char mqtt_payload[120] = "Low light detected. Waiting...";
   float Light = lightSensor();
   snprintf (mqtt_payload, 20, "%lf", Light);
   Serial.println(mqtt_payload);
-  client.publish("g2/light", "49");
+  client.publish("FishBowl/light", "49");
 
 }
 
@@ -194,27 +195,27 @@ void displayInfo() {
     snprintf (mqtt_payload, 20, "%lf", t);
     Serial.println(mqtt_payload);
     /* Send temperature values through MQTT */
-    client.publish("g2/temp", mqtt_payload);
+    client.publish("FishBowl/temp", mqtt_payload);
 
     snprintf (mqtt_payload, 20, "%lf", h);
     Serial.println(mqtt_payload);
     /* Send humidity values through MQTT */
-    client.publish("g2/humid", mqtt_payload);
+    client.publish("FishBowl/humid", mqtt_payload);
 
     snprintf (mqtt_payload, 20, "%lf", Light);
     Serial.println(mqtt_payload);
     /* Send light values through MQTT */
-    client.publish("g2/light", mqtt_payload);
+    client.publish("FishBowl/light", mqtt_payload);
 
     snprintf (mqtt_payload, 50, "%lf, %lf", latitude, longitude);
     Serial.println(mqtt_payload);
     /* Send GPS coordinates through MQTT */
-    client.publish("g2/gps", mqtt_payload);
+    client.publish("FishBowl/gps", mqtt_payload);
 
     snprintf (mqtt_payload, 50, timeStringBuff);
     Serial.println(mqtt_payload);
     /* Send current time through MQTT */
-    client.publish("g2/time", mqtt_payload);
+    client.publish("FishBowl/time", mqtt_payload);
 
     Serial.println("> MQTT data published");
     Serial.println("********** End **********");
@@ -248,7 +249,7 @@ void reconnect() {
 // loop
 void loop() {
 
-  /* Loop for reatining connectivity through MQTT */
+  /* Loop for retaining connectivity through MQTT */
   if (!client.connected()) {
     reconnect();
     client.loop();
