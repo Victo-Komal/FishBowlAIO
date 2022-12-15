@@ -58,19 +58,20 @@ sudo apt install python3-pip
 pip3 install --upgrade pip
 pip3 install paho-mqtt
 ```
-3. Install VSCODE IDE to handle the Python files. (Ignore if updater script is used)
+3. Install Snap repository (Ignore if updater script is used)
 ```
-sudo apt install software-properties-common apt-transport-https wget
-wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
-sudo apt install code
+sudo apt install snapd
 ```
-4. Install Arduino IDE to handle the C files. (Ignore if updater script is used)
+4. Install PyCharm Community Edition. (Ingore if updater script is used)
+```
+snap install pycharm-community --classic
+```
+5. Install Arduino IDE to handle the C files. (Ignore if updater script is used)
 ```
 sudo apt-get install arduino
 ```
 
-5. Installing ESP32 Add-on in Arduino IDE
+6. Installing ESP32 Add-on in Arduino IDE
 
 In your Arduino IDE, go to File> Preferences
 
@@ -80,7 +81,12 @@ Enter the following into the “Additional Board Manager URLs” field:
 
 https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
 
+7. Install ppaho-mqtt in PyCharm terminal if not installed automatic
 
+In your PyCharm IDE, Click the terminal in the bottom of the window and type in:
+```
+pip3 install paho-mqtt
+```
 ## Updating firmware
 
 If the product needs to be updated, the following must be done:
@@ -103,10 +109,8 @@ sudo apt install python3-pip
 sudo apt-get install arduino
 pip3 install --upgrade pip
 pip3 install paho-mqtt
-sudo apt install software-properties-common apt-transport-https wget
-wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
-sudo apt install code
+sudo apt install snapd
+snap install pycharm-community --classic
 git clone http://github.com/Victo-Komal/FishBowlAIO.git
 ```
     
